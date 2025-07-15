@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  HIGH
+  VERY_HIGH
+}
+
+enum Goal {
+  LOSE_WEIGHT
+  GAIN_WEIGHT
+  MAINTAIN_WEIGHT
+  GAIN_MUSCLE
+  STRENGTH_GAIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  passwordHash  String
+  birthDate   DateTime
+  gender      Gender?
+  height      Int
+  weight      Int
+  activityLevel ActivityLevel?
+  goal Goal?
+  profilePictureUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role   @default(USER)
+  workoutPlans WorkoutPlan[]
+  @@map("users")
+}
+
+model WorkoutPlan {
+  id        String   @id @default(uuid()) 
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workoutDays WorkoutDay[]
+  @@map("workout_plans")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model WorkoutDay{
+  id        String   @id @default(uuid())
+  name      String
+  dayOfWeek DayOfWeek?
+  workoutPlanId String
+  workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workoutExercises WorkoutExercise[]
+  @@map("workout_days")
+}
+
+model WorkoutExercise{
+  id        String   @id @default(uuid())
+  name      String
+  sets      Int
+  reps      Int
+  weight    Int
+  workoutDayId String
+  workoutDay WorkoutDay @relation(fields: [workoutDayId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("workout_exercises")
+}

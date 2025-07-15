@@ -1,0 +1,40 @@
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { WorkoutExercisesService } from './workout-exercises.service';
+import { CreateWorkoutExerciseDto } from './dto/workout-exercises.dto';
+import { WorkoutExercise } from '@prisma/client';
+import { AuthGuard } from '@nestjs/passport';
+
+@Controller('workout-exercises')
+export class WorkoutExercisesController {
+    constructor(private readonly workoutExercisesService: WorkoutExercisesService) { }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Post()
+    async createWorkoutExercise(@Body() createWorkoutExerciseDto: CreateWorkoutExerciseDto): Promise<WorkoutExercise> {
+        return this.workoutExercisesService.createWorkoutExercise(createWorkoutExerciseDto);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get()
+    async findAllWorkoutExercises(@Param('workoutDayId') workoutDayId: string): Promise<WorkoutExercise[]> {
+        return this.workoutExercisesService.findAllWorkoutExercises(workoutDayId);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get(':id')
+    async findOneWorkoutExercise(@Param('id') id: string): Promise<WorkoutExercise | null> {
+        return this.workoutExercisesService.findOneWorkoutExercise(id);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch(':id')
+    async updateWorkoutExercise(@Param('id') id: string, @Body() updateWorkoutExerciseDto: CreateWorkoutExerciseDto): Promise<WorkoutExercise> {
+        return this.workoutExercisesService.updateWorkoutExercise(id, updateWorkoutExerciseDto);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Delete(':id')
+    async deleteWorkoutExercise(@Param('id') id: string): Promise<WorkoutExercise> {
+        return this.workoutExercisesService.deleteWorkoutExercise(id);
+    }
+}
