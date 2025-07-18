@@ -246,3 +246,4 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local 
+.gitignore

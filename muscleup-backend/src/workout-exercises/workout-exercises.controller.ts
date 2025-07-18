@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { WorkoutExercisesService } from './workout-exercises.service';
 import { CreateWorkoutExerciseDto } from './dto/workout-exercises.dto';
 import { WorkoutExercise } from '@prisma/client';
@@ -16,8 +16,11 @@ export class WorkoutExercisesController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get()
-    async findAllWorkoutExercises(@Param('workoutDayId') workoutDayId: string): Promise<WorkoutExercise[]> {
-        return this.workoutExercisesService.findAllWorkoutExercises(workoutDayId);
+    async findAllWorkoutExercises(@Req() req: any, @Query('workoutDayId') workoutDayId?: string): Promise<WorkoutExercise[]> {
+        if (workoutDayId) {
+            return this.workoutExercisesService.findExercisesByWorkoutDay(workoutDayId);
+        }
+        return this.workoutExercisesService.findAllWorkoutExercises(req.user.id);
     }
 
     @UseGuards(AuthGuard('jwt'))

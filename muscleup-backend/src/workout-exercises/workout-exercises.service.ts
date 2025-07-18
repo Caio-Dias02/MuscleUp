@@ -19,7 +19,19 @@ export class WorkoutExercisesService {
         })
     }
 
-    async findAllWorkoutExercises(workoutDayId: string): Promise<WorkoutExercise[]>{
+    async findAllWorkoutExercises(userId: string): Promise<WorkoutExercise[]>{
+        return this.prisma.workoutExercise.findMany({
+            where: {
+                workoutDay: {
+                    workoutPlan: {
+                        userId: userId
+                    }
+                }
+            }
+        })
+    }
+
+    async findExercisesByWorkoutDay(workoutDayId: string): Promise<WorkoutExercise[]>{
         return this.prisma.workoutExercise.findMany({
             where: {
                 workoutDayId: workoutDayId
@@ -36,6 +48,15 @@ export class WorkoutExercisesService {
     }
 
     async updateWorkoutExercise(id: string, workoutExercise: CreateWorkoutExerciseDto): Promise<WorkoutExercise>{
+        // First check if the workout exercise exists
+        const existingExercise = await this.prisma.workoutExercise.findUnique({
+            where: { id: id }
+        });
+
+        if (!existingExercise) {
+            throw new Error('Workout exercise not found');
+        }
+
         return this.prisma.workoutExercise.update({
             where: {
                 id: id
@@ -45,6 +66,15 @@ export class WorkoutExercisesService {
     }
 
     async deleteWorkoutExercise(id: string): Promise<WorkoutExercise>{
+        // First check if the workout exercise exists
+        const existingExercise = await this.prisma.workoutExercise.findUnique({
+            where: { id: id }
+        });
+
+        if (!existingExercise) {
+            throw new Error('Workout exercise not found');
+        }
+
         return this.prisma.workoutExercise.delete({
             where: {
                 id: id

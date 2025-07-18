@@ -6,9 +6,17 @@ import { UsersModule } from './users/users.module';
 import { WorkoutPlansModule } from './workout-plans/workout-plans.module';
 import { WorkoutDaysModule } from './workout-days/workout-days.module';
 import { WorkoutExercisesModule } from './workout-exercises/workout-exercises.module';
+import { RedisCacheModule } from './cache/cache.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, WorkoutPlansModule, WorkoutDaysModule, WorkoutExercisesModule],
+  imports: [
+    RedisCacheModule,
+    AuthModule, 
+    UsersModule, 
+    WorkoutPlansModule, 
+    WorkoutDaysModule, 
+    WorkoutExercisesModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
