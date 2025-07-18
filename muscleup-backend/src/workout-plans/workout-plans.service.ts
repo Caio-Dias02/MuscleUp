@@ -126,10 +126,30 @@ export class WorkoutPlansService {
             throw new Error('Workout plan not found');
         }
 
-        const result = await this.prisma.workoutPlan.delete({
-            where: {
-                id: id
-            }
+        // Use a transaction to delete related data in the correct order
+        const result = await this.prisma.$transaction(async (prisma) => {
+            // First, delete all exercises from all workout days in this plan
+            await prisma.workoutExercise.deleteMany({
+                where: {
+                    workoutDay: {
+                        workoutPlanId: id
+                    }
+                }
+            });
+
+            // Then delete all workout days in this plan
+            await prisma.workoutDay.deleteMany({
+                where: {
+                    workoutPlanId: id
+                }
+            });
+
+            // Finally delete the workout plan
+            return prisma.workoutPlan.delete({
+                where: {
+                    id: id
+                }
+            });
         });
 
         // Invalida cache relacionado

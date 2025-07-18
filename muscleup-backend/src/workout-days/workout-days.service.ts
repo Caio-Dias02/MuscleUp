@@ -66,10 +66,21 @@ export class WorkoutDaysService {
             throw new Error('Workout day not found');
         }
 
-        return this.prisma.workoutDay.delete({
-            where: {
-                id: id
-            }
-        })
+        // Use a transaction to delete related exercises first, then the workout day
+        return this.prisma.$transaction(async (prisma) => {
+            // Delete all exercises related to this workout day
+            await prisma.workoutExercise.deleteMany({
+                where: {
+                    workoutDayId: id
+                }
+            });
+
+            // Delete the workout day
+            return prisma.workoutDay.delete({
+                where: {
+                    id: id
+                }
+            });
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateWorkoutDayDto } from './dto/workout-days.dto';
 import { WorkoutDay } from '@prisma/client';
 import { WorkoutDaysService } from './workout-days.service';
@@ -39,6 +39,15 @@ export class WorkoutDaysController {
     @Delete(':id')
     @UseGuards(AuthGuard('jwt'))
     async deleteWorkoutDay(@Param('id') id: string): Promise<WorkoutDay>{
-        return this.workoutDaysService.deleteWorkoutDay(id);
+        try {
+            return await this.workoutDaysService.deleteWorkoutDay(id);
+        } catch (error) {
+            if (error.message === 'Workout day not found') {
+                throw new HttpException('Dia de treino não encontrado', HttpStatus.NOT_FOUND);
+            }
+            
+            console.error('Erro ao deletar dia de treino:', error);
+            throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

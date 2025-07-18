@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { WorkoutPlansService } from './workout-plans.service';
 import { CreateWorkoutPlanDto } from './dto/create-workoutplan.dto';
 import { WorkoutPlan } from '@prisma/client';
@@ -41,6 +41,15 @@ export class WorkoutPlansController {
     @Delete(':id')
     @UseGuards(AuthGuard('jwt'))
     async deleteWorkoutPlan(@Param('id') id: string){
-        return this.workoutPlansService.deleteWorkoutPlan(id);
+        try {
+            return await this.workoutPlansService.deleteWorkoutPlan(id);
+        } catch (error) {
+            if (error.message === 'Workout plan not found') {
+                throw new HttpException('Plano de treino não encontrado', HttpStatus.NOT_FOUND);
+            }
+            
+            console.error('Erro ao deletar plano de treino:', error);
+            throw new HttpException('Erro interno do servidor', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
